@@ -1,0 +1,84 @@
+import { categoryBadgeClasses, statusBadgeClasses, type Resource } from "@/lib/resources";
+
+type ResourceCardProps = {
+  resource: Resource;
+  isDeleting: boolean;
+  onCopy: (resource: Resource) => void;
+  onDelete: (id: string) => void;
+};
+
+export function ResourceCard({ resource, isDeleting, onCopy, onDelete }: ResourceCardProps) {
+  return (
+    <article className="flex min-h-72 flex-col rounded-xl border border-[#E2D8C9] bg-[#FFFDFC] p-6 text-ink shadow-[0_16px_36px_rgba(36,48,65,0.13)] transition hover:-translate-y-0.5 hover:border-[#D3C4AF] hover:shadow-[0_20px_42px_rgba(36,48,65,0.17)]">
+      <div className="flex flex-wrap items-center gap-2.5">
+        <span
+          className={`rounded-full border px-3 py-1 text-xs font-semibold ${categoryBadgeClasses[resource.category]}`}
+        >
+          {resource.category}
+        </span>
+
+        <span
+          className={`rounded-full border px-3 py-1 text-xs font-semibold ${statusBadgeClasses[resource.status]}`}
+        >
+          {resource.status}
+        </span>
+
+        {resource.difficulty && (
+          <span className="rounded-full border border-line bg-page px-3 py-1 text-xs font-medium text-muted">
+            {resource.difficulty}
+          </span>
+        )}
+
+        {resource.india_friendly === "Yes" && (
+          <span className="rounded-full border border-line bg-page px-3 py-1 text-xs font-medium text-muted">
+            🇮🇳 India
+          </span>
+        )}
+      </div>
+
+      <div className="mt-5 min-h-0 flex-1">
+        <h3 className="text-xl font-bold leading-snug text-ink">{resource.title}</h3>
+
+        {resource.type && <p className="mt-2 text-sm font-medium text-muted">{resource.type}</p>}
+
+        {resource.description && (
+          <p className="mt-4 line-clamp-4 text-sm leading-7 text-muted">
+            {resource.description}
+          </p>
+        )}
+      </div>
+
+      <div className="mt-7 grid gap-2.5 sm:grid-cols-[minmax(0,1fr)_auto_auto] sm:items-center">
+        {resource.link ? (
+          <a
+            href={resource.link}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex min-h-11 items-center justify-center rounded-full bg-brand px-5 py-2 text-sm font-semibold text-white shadow-[0_8px_16px_rgba(91,127,255,0.18)] transition hover:bg-brandDark"
+          >
+            Open Link
+          </a>
+        ) : (
+          <span className="hidden sm:block" />
+        )}
+
+        <button
+          type="button"
+          onClick={() => onCopy(resource)}
+          className="inline-flex min-h-11 items-center justify-center rounded-full bg-soft px-4 py-2 text-sm font-semibold text-ink shadow-[0_6px_14px_rgba(36,48,65,0.10)] transition hover:bg-[#B9D2E5]"
+        >
+          Copy Discord Post
+        </button>
+
+        <button
+          type="button"
+          disabled={isDeleting}
+          onClick={() => onDelete(resource.id)}
+          className="inline-flex min-h-11 items-center justify-center rounded-full border border-danger/45 bg-white px-4 py-2 text-sm font-semibold text-danger transition hover:border-danger hover:bg-dangerSoft hover:text-[#7E2E3D] disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          {isDeleting ? "Deleting..." : "Delete"}
+        </button>
+      </div>
+    </article>
+  );
+}
