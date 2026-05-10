@@ -11,11 +11,11 @@ export const categories = [
 
 export type Category = (typeof categories)[number];
 
-export const statuses = ["Open", "Upcoming", "Expired"] as const;
+export const statuses = ["Active", "Upcoming", "Expired"] as const;
 
 export type Status = (typeof statuses)[number];
 
-export const creationStatuses = ["Open", "Upcoming"] as const;
+export const creationStatuses = ["Active", "Upcoming"] as const;
 
 export type Resource = {
   id: string;
@@ -84,7 +84,7 @@ export const emptyResourceForm: ResourceFormData = {
   description: "",
   difficulty: "",
   india_friendly: "Yes",
-  status: "Open",
+  status: "Active",
   postedBy: defaultPostedBy
 };
 
@@ -100,7 +100,7 @@ export const categoryBadgeClasses: Record<Category, string> = {
 };
 
 export const statusBadgeClasses: Record<Status, string> = {
-  Open: "border-[#6D94C5]/40 bg-[#CBDCEB] text-ink",
+  Active: "border-[#6D94C5]/40 bg-[#CBDCEB] text-ink",
   Upcoming: "border-[#D8CCB8] bg-[#E8DFCA] text-ink",
   Expired: "border-danger/30 bg-dangerSoft text-danger"
 };
@@ -115,7 +115,7 @@ export const demoResources: Resource[] = [
     description: "Free developer tools, credits, and learning resources for verified students.",
     difficulty: "Beginner",
     india_friendly: "Yes",
-    status: "Open",
+    status: "Active",
     postedBy: defaultPostedBy,
     createdAt: new Date().toISOString()
   },
@@ -128,7 +128,7 @@ export const demoResources: Resource[] = [
     description: "Student-led developer communities with events, projects, and peer learning.",
     difficulty: "Beginner",
     india_friendly: "Yes",
-    status: "Open",
+    status: "Active",
     postedBy: defaultPostedBy,
     createdAt: new Date().toISOString()
   },
@@ -167,7 +167,7 @@ export const demoResources: Resource[] = [
     description: "Competitions for practicing machine learning, analytics, and problem solving.",
     difficulty: "Intermediate",
     india_friendly: "Yes",
-    status: "Open",
+    status: "Active",
     postedBy: defaultPostedBy,
     createdAt: new Date().toISOString()
   }
@@ -188,7 +188,7 @@ export function normalizeStatus(status: string | null | undefined): Status {
     return "Expired";
   }
 
-  return "Open";
+  return "Active";
 }
 
 export function normalizeResource(resource: Resource | ResourceRow): Resource {

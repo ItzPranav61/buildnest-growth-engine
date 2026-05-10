@@ -2,7 +2,8 @@ import {
   categoryBadgeClasses,
   formatRelativeTime,
   statusBadgeClasses,
-  type Resource
+  type Resource,
+  type Status
 } from "@/lib/resources";
 
 type ResourceCardProps = {
@@ -11,7 +12,7 @@ type ResourceCardProps = {
   isDeleting: boolean;
   isStatusUpdating: boolean;
   onToggleSave: (id: string) => void;
-  onMarkExpired: (id: string) => void;
+  onUpdateStatus: (id: string, status: Status) => void;
   onCopy: (resource: Resource) => void;
   onDelete: (id: string) => void;
 };
@@ -22,11 +23,13 @@ export function ResourceCard({
   isDeleting,
   isStatusUpdating,
   onToggleSave,
-  onMarkExpired,
+  onUpdateStatus,
   onCopy,
   onDelete
 }: ResourceCardProps) {
   const isExpired = resource.status === "Expired";
+  const nextLifecycleStatus: Status = isExpired ? "Active" : "Expired";
+  const lifecycleLabel = isExpired ? "Mark Active" : "Mark Expired";
 
   return (
     <article
@@ -62,19 +65,6 @@ export function ResourceCard({
             </span>
           )}
         </div>
-
-        <button
-          type="button"
-          aria-pressed={isSaved}
-          onClick={() => onToggleSave(resource.id)}
-          className={`inline-flex min-h-10 shrink-0 items-center justify-center rounded-full border px-4 py-1.5 text-sm font-semibold transition ${
-            isSaved
-              ? "border-brand bg-brandSoft text-[#304FB8]"
-              : "border-line bg-white text-muted hover:border-brand hover:text-ink"
-          }`}
-        >
-          {isSaved ? "Saved" : "Save"}
-        </button>
       </div>
 
       <div className="mt-5 min-h-0 flex-1">
@@ -93,47 +83,66 @@ export function ResourceCard({
         )}
       </div>
 
-      <div className="mt-7 grid min-w-0 gap-2.5 sm:grid-cols-[minmax(0,1fr)_auto_auto_auto] sm:items-center">
-        {resource.link ? (
-          <a
-            href={resource.link}
-            target="_blank"
-            rel="noreferrer"
-            className="inline-flex min-h-11 min-w-0 items-center justify-center break-words rounded-full bg-brand px-5 py-2 text-center text-sm font-semibold text-white shadow-[0_8px_16px_rgba(91,127,255,0.18)] transition hover:bg-brandDark"
+      <div className="mt-7 grid min-w-0 gap-2.5">
+        <div className="grid min-w-0 gap-2.5 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
+          {resource.link ? (
+            <a
+              href={resource.link}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex min-h-11 min-w-0 items-center justify-center break-words rounded-full bg-brand px-6 py-2.5 text-center text-sm font-semibold text-white shadow-[0_8px_16px_rgba(91,127,255,0.18)] transition hover:bg-brandDark"
+            >
+              Open Link
+            </a>
+          ) : (
+            <span className="hidden sm:block" />
+          )}
+
+          <button
+            type="button"
+            onClick={() => onCopy(resource)}
+            className="inline-flex min-h-11 min-w-0 items-center justify-center break-words rounded-full bg-soft px-4 py-2 text-center text-sm font-semibold text-ink shadow-[0_6px_14px_rgba(36,48,65,0.10)] transition hover:bg-[#B9D2E5]"
           >
-            Open Link
-          </a>
-        ) : (
-          <span className="hidden sm:block" />
-        )}
+            Copy Discord Post
+          </button>
+        </div>
 
-        <button
-          type="button"
-          onClick={() => onCopy(resource)}
-          className="inline-flex min-h-11 min-w-0 items-center justify-center break-words rounded-full bg-soft px-4 py-2 text-center text-sm font-semibold text-ink shadow-[0_6px_14px_rgba(36,48,65,0.10)] transition hover:bg-[#B9D2E5]"
-        >
-          Copy Discord Post
-        </button>
+        <div className="grid min-w-0 gap-2.5 sm:grid-cols-3">
+          <button
+            type="button"
+            aria-pressed={isSaved}
+            onClick={() => onToggleSave(resource.id)}
+            className={`inline-flex min-h-11 min-w-0 items-center justify-center break-words rounded-full border px-4 py-2 text-center text-sm font-semibold transition ${
+              isSaved
+                ? "border-brand bg-brandSoft text-[#304FB8]"
+                : "border-line bg-white text-muted hover:border-brand hover:text-ink"
+            }`}
+          >
+            {isSaved ? "Saved" : "Save"}
+          </button>
 
-        {!isExpired && (
           <button
             type="button"
             disabled={isStatusUpdating}
-            onClick={() => onMarkExpired(resource.id)}
-            className="inline-flex min-h-11 min-w-0 items-center justify-center break-words rounded-full border border-line bg-white px-4 py-2 text-center text-sm font-semibold text-muted transition hover:border-danger/45 hover:bg-dangerSoft hover:text-danger disabled:cursor-not-allowed disabled:opacity-60"
+            onClick={() => onUpdateStatus(resource.id, nextLifecycleStatus)}
+            className={`inline-flex min-h-11 min-w-0 items-center justify-center break-words rounded-full border bg-white px-4 py-2 text-center text-sm font-semibold text-muted transition disabled:cursor-not-allowed disabled:opacity-60 ${
+              isExpired
+                ? "border-line hover:border-brand hover:bg-brandSoft hover:text-[#304FB8]"
+                : "border-line hover:border-danger/45 hover:bg-dangerSoft hover:text-danger"
+            }`}
           >
-            {isStatusUpdating ? "Updating..." : "Mark Expired"}
+            {isStatusUpdating ? "Updating..." : lifecycleLabel}
           </button>
-        )}
 
-        <button
-          type="button"
-          disabled={isDeleting}
-          onClick={() => onDelete(resource.id)}
-          className="inline-flex min-h-11 min-w-0 items-center justify-center break-words rounded-full border border-danger/45 bg-white px-4 py-2 text-center text-sm font-semibold text-danger transition hover:border-danger hover:bg-dangerSoft hover:text-[#7E2E3D] disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          {isDeleting ? "Deleting..." : "Delete"}
-        </button>
+          <button
+            type="button"
+            disabled={isDeleting}
+            onClick={() => onDelete(resource.id)}
+            className="inline-flex min-h-11 min-w-0 items-center justify-center break-words rounded-full border border-danger/45 bg-white px-4 py-2 text-center text-sm font-semibold text-danger transition hover:border-danger hover:bg-dangerSoft hover:text-[#7E2E3D] disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {isDeleting ? "Deleting..." : "Delete"}
+          </button>
+        </div>
       </div>
     </article>
   );

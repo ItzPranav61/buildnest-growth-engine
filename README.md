@@ -11,7 +11,7 @@ The app is intentionally simple: add resources, browse/filter them, copy a Disco
 - Local demo mode fallback when Supabase env vars are missing or fetch fails
 - Search by title, description, or category
 - Filter by category and status
-- Status system: create `Open`/`Upcoming` resources and mark existing resources as `Expired`
+- Status system: create `Active`/`Upcoming` resources and mark resources as `Expired` or `Active`
 - Community metadata: posted-by label and lightweight relative time
 - Browser-local saved resources with a Saved Only filter
 - Copy formatted Discord posts
@@ -51,7 +51,7 @@ create table resources (
   description text,
   difficulty text,
   india_friendly text,
-  status text default 'open',
+  status text default 'Active',
   posted_by text default 'BuildNest Member',
   created_at timestamp with time zone default now()
 );
@@ -98,11 +98,11 @@ Optional seed data:
 ```sql
 insert into resources (title, category, type, link, description, difficulty, india_friendly, status, posted_by)
 values
-  ('GitHub Student Developer Pack', 'Freebie', 'Student benefits', 'https://education.github.com/pack', 'Free developer tools, credits, and learning resources for verified students.', 'Beginner', 'Yes', 'Open', 'BuildNest Member'),
-  ('Google Developer Student Clubs', 'Community', 'Campus community', 'https://gdsc.community.dev/', 'Student-led developer communities with events, projects, and peer learning.', 'Beginner', 'Yes', 'Open', 'BuildNest Member'),
+  ('GitHub Student Developer Pack', 'Freebie', 'Student benefits', 'https://education.github.com/pack', 'Free developer tools, credits, and learning resources for verified students.', 'Beginner', 'Yes', 'Active', 'BuildNest Member'),
+  ('Google Developer Student Clubs', 'Community', 'Campus community', 'https://gdsc.community.dev/', 'Student-led developer communities with events, projects, and peer learning.', 'Beginner', 'Yes', 'Active', 'BuildNest Member'),
   ('Google Summer of Code', 'Open Source', 'Open source program', 'https://summerofcode.withgoogle.com/', 'A global program where contributors work with open source organizations.', 'Advanced', 'Yes', 'Upcoming', 'BuildNest Member'),
-  ('MLH Fellowship', 'Internship', 'Remote fellowship', 'https://fellowship.mlh.io/', 'A remote fellowship for developers to contribute to real projects in teams.', 'Intermediate', 'Yes', 'Open', 'BuildNest Member'),
-  ('Kaggle Competitions', 'Hackathon', 'Data science challenge', 'https://www.kaggle.com/competitions', 'Competitions for practicing machine learning, analytics, and problem solving.', 'Intermediate', 'Yes', 'Open', 'BuildNest Member');
+  ('MLH Fellowship', 'Internship', 'Remote fellowship', 'https://fellowship.mlh.io/', 'A remote fellowship for developers to contribute to real projects in teams.', 'Intermediate', 'Yes', 'Expired', 'BuildNest Member'),
+  ('Kaggle Competitions', 'Hackathon', 'Data science challenge', 'https://www.kaggle.com/competitions', 'Competitions for practicing machine learning, analytics, and problem solving.', 'Intermediate', 'Yes', 'Active', 'BuildNest Member');
 ```
 
 ## Demo Mode

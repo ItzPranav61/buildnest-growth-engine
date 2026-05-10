@@ -15,7 +15,8 @@ import {
   toSupabaseResourcePayload,
   type Resource,
   type ResourceRow,
-  type ResourceFormData
+  type ResourceFormData,
+  type Status
 } from "@/lib/resources";
 import { hasSupabaseConfig, supabase } from "@/lib/supabase";
 
@@ -297,7 +298,7 @@ export default function Home() {
     setDeletingId(null);
   }
 
-  async function markResourceExpired(id: string) {
+  async function updateResourceStatus(id: string, nextStatus: Status) {
     if (statusUpdatingId) {
       return;
     }
@@ -307,19 +308,19 @@ export default function Home() {
 
     setResources((currentResources) =>
       currentResources.map((resource) =>
-        resource.id === id ? { ...resource, status: "Expired" } : resource
+        resource.id === id ? { ...resource, status: nextStatus } : resource
       )
     );
 
     if (!supabase || isDemoMode) {
-      setToast("Resource marked expired.");
+      setToast(`Resource marked ${nextStatus.toLowerCase()}.`);
       setStatusUpdatingId(null);
       return;
     }
 
     const { error } = await supabase
       .from("resources")
-      .update({ status: "Expired" })
+      .update({ status: nextStatus })
       .eq("id", id);
 
     if (error) {
@@ -334,7 +335,7 @@ export default function Home() {
       setIsDemoMode(true);
       setToast("Supabase unavailable. Using demo mode.");
     } else {
-      setToast("Resource marked expired.");
+      setToast(`Resource marked ${nextStatus.toLowerCase()}.`);
     }
 
     setStatusUpdatingId(null);
@@ -445,7 +446,7 @@ export default function Home() {
                     isDeleting={deletingId === resource.id}
                     isStatusUpdating={statusUpdatingId === resource.id}
                     onToggleSave={toggleSavedResource}
-                    onMarkExpired={markResourceExpired}
+                    onUpdateStatus={updateResourceStatus}
                     onCopy={copyDiscordPost}
                     onDelete={deleteResource}
                   />
