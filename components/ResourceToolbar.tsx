@@ -6,10 +6,13 @@ type ResourceToolbarProps = {
   selectedCategory: string;
   selectedStatus: string;
   searchQuery: string;
+  savedOnly: boolean;
+  savedCount: number;
   activeFilterCount: number;
   onCategoryChange: (category: string) => void;
   onStatusChange: (status: string) => void;
   onSearchChange: (query: string) => void;
+  onSavedOnlyChange: (savedOnly: boolean) => void;
   onClearFilters: () => void;
 };
 
@@ -22,10 +25,13 @@ export function ResourceToolbar({
   selectedCategory,
   selectedStatus,
   searchQuery,
+  savedOnly,
+  savedCount,
   activeFilterCount,
   onCategoryChange,
   onStatusChange,
   onSearchChange,
+  onSavedOnlyChange,
   onClearFilters
 }: ResourceToolbarProps) {
   return (
@@ -53,7 +59,7 @@ export function ResourceToolbar({
         </div>
       </div>
 
-      <div className="mt-4 grid min-w-0 gap-3 md:grid-cols-[minmax(0,1fr)_11rem_10rem]">
+      <div className="mt-4 grid min-w-0 gap-3 md:grid-cols-[minmax(0,1fr)_11rem_10rem_9rem]">
         <label htmlFor="resource-search" className="grid gap-2 text-sm font-semibold text-ink">
           Search
           <input
@@ -94,6 +100,22 @@ export function ResourceToolbar({
             ))}
           </select>
         </label>
+
+        <div className="grid gap-2 text-sm font-semibold text-ink">
+          Saved
+          <button
+            type="button"
+            aria-pressed={savedOnly}
+            onClick={() => onSavedOnlyChange(!savedOnly)}
+            className={`min-h-10 w-full rounded-md border px-3.5 py-2 text-left text-sm font-semibold transition ${
+              savedOnly
+                ? "border-brand bg-brandSoft text-[#304FB8] shadow-[0_0_0_3px_rgba(91,127,255,0.10)]"
+                : "border-[#CFC0AA] bg-white text-ink hover:border-brand"
+            }`}
+          >
+            Saved Only {savedCount > 0 ? `(${savedCount})` : ""}
+          </button>
+        </div>
       </div>
     </div>
   );

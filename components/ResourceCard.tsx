@@ -7,38 +7,62 @@ import {
 
 type ResourceCardProps = {
   resource: Resource;
+  isSaved: boolean;
   isDeleting: boolean;
+  onToggleSave: (id: string) => void;
   onCopy: (resource: Resource) => void;
   onDelete: (id: string) => void;
 };
 
-export function ResourceCard({ resource, isDeleting, onCopy, onDelete }: ResourceCardProps) {
+export function ResourceCard({
+  resource,
+  isSaved,
+  isDeleting,
+  onToggleSave,
+  onCopy,
+  onDelete
+}: ResourceCardProps) {
   return (
     <article className="flex min-h-72 w-full min-w-0 flex-col rounded-xl border border-[#E2D8C9] bg-[#FFFDFC] p-5 text-ink shadow-[0_16px_36px_rgba(36,48,65,0.13)] transition hover:-translate-y-0.5 hover:border-[#D3C4AF] hover:shadow-[0_20px_42px_rgba(36,48,65,0.17)] sm:p-6">
-      <div className="flex flex-wrap items-center gap-2.5">
-        <span
-          className={`max-w-full break-words rounded-full border px-3 py-1 text-xs font-semibold ${categoryBadgeClasses[resource.category]}`}
-        >
-          {resource.category}
-        </span>
-
-        <span
-          className={`max-w-full break-words rounded-full border px-3 py-1 text-xs font-semibold ${statusBadgeClasses[resource.status]}`}
-        >
-          {resource.status}
-        </span>
-
-        {resource.difficulty && (
-          <span className="max-w-full break-words rounded-full border border-line bg-page px-3 py-1 text-xs font-medium text-muted">
-            {resource.difficulty}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div className="flex min-w-0 flex-wrap items-center gap-2.5">
+          <span
+            className={`max-w-full break-words rounded-full border px-3 py-1 text-xs font-semibold ${categoryBadgeClasses[resource.category]}`}
+          >
+            {resource.category}
           </span>
-        )}
 
-        {resource.india_friendly === "Yes" && (
-          <span className="rounded-full border border-line bg-page px-3 py-1 text-xs font-medium text-muted">
-            🇮🇳 India
+          <span
+            className={`max-w-full break-words rounded-full border px-3 py-1 text-xs font-semibold ${statusBadgeClasses[resource.status]}`}
+          >
+            {resource.status}
           </span>
-        )}
+
+          {resource.difficulty && (
+            <span className="max-w-full break-words rounded-full border border-line bg-page px-3 py-1 text-xs font-medium text-muted">
+              {resource.difficulty}
+            </span>
+          )}
+
+          {resource.india_friendly === "Yes" && (
+            <span className="rounded-full border border-line bg-page px-3 py-1 text-xs font-medium text-muted">
+              &#x1F1EE;&#x1F1F3; India
+            </span>
+          )}
+        </div>
+
+        <button
+          type="button"
+          aria-pressed={isSaved}
+          onClick={() => onToggleSave(resource.id)}
+          className={`inline-flex min-h-10 shrink-0 items-center justify-center rounded-full border px-4 py-1.5 text-sm font-semibold transition ${
+            isSaved
+              ? "border-brand bg-brandSoft text-[#304FB8]"
+              : "border-line bg-white text-muted hover:border-brand hover:text-ink"
+          }`}
+        >
+          {isSaved ? "Saved" : "Save"}
+        </button>
       </div>
 
       <div className="mt-5 min-h-0 flex-1">
@@ -47,7 +71,7 @@ export function ResourceCard({ resource, isDeleting, onCopy, onDelete }: Resourc
         {resource.type && <p className="mt-2 break-words text-sm font-medium text-muted">{resource.type}</p>}
 
         <p className="mt-2 break-words text-xs font-medium leading-5 text-muted">
-          Posted by {resource.postedBy} • {formatRelativeTime(resource.createdAt)}
+          Posted by {resource.postedBy} &bull; {formatRelativeTime(resource.createdAt)}
         </p>
 
         {resource.description && (

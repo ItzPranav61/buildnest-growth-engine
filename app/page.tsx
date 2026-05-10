@@ -20,6 +20,7 @@ import {
 import { hasSupabaseConfig, supabase } from "@/lib/supabase";
 
 type FormErrors = Partial<Record<keyof ResourceFormData, string>>;
+const savedResourcesStorageKey = "buildnest-saved-resources";
 
 export default function Home() {
   const [isMounted, setIsMounted] = useState(false);
@@ -29,6 +30,8 @@ export default function Home() {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [selectedStatus, setSelectedStatus] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
+  const [savedOnly, setSavedOnly] = useState(false);
+  const [savedResourceIds, setSavedResourceIds] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -37,6 +40,7 @@ export default function Home() {
 
   useEffect(() => {
     setIsMounted(true);
+    setSavedResourceIds(readSavedResourceIds());
     loadResources();
   }, []);
 
@@ -83,6 +87,7 @@ export default function Home() {
       const matchesCategory =
         selectedCategory === "All" || resource.category === selectedCategory;
       const matchesStatus = selectedStatus === "All" || resource.status === selectedStatus;
+      const matchesSaved = !savedOnly || savedResourceIds.includes(resource.id);
 
       const searchableText = [
         resource.title,
@@ -93,14 +98,38 @@ export default function Home() {
         .join(" ")
         .toLowerCase();
 
-      return matchesCategory && matchesStatus && (!query || searchableText.includes(query));
+      return matchesCategory && matchesStatus && matchesSaved && (!query || searchableText.includes(query));
     });
-  }, [resources, searchQuery, selectedCategory, selectedStatus]);
+  }, [resources, savedOnly, savedResourceIds, searchQuery, selectedCategory, selectedStatus]);
 
   const activeFilterCount = useMemo(() => {
-    return [searchQuery.trim(), selectedCategory !== "All", selectedStatus !== "All"].filter(Boolean)
-      .length;
-  }, [searchQuery, selectedCategory, selectedStatus]);
+    return [
+      searchQuery.trim(),
+      selectedCategory !== "All",
+      selectedStatus !== "All",
+      savedOnly
+    ].filter(Boolean).length;
+  }, [savedOnly, searchQuery, selectedCategory, selectedStatus]);
+
+  function readSavedResourceIds() {
+    try {
+      const savedValue = window.localStorage.getItem(savedResourcesStorageKey);
+      const parsedValue = savedValue ? JSON.parse(savedValue) : [];
+      return Array.isArray(parsedValue)
+        ? parsedValue.filter((value): value is string => typeof value === "string")
+        : [];
+    } catch {
+      return [];
+    }
+  }
+
+  function persistSavedResourceIds(nextSavedIds: string[]) {
+    try {
+      window.localStorage.setItem(savedResourcesStorageKey, JSON.stringify(nextSavedIds));
+    } catch {
+      setToast("Saved resources unavailable in this browser.");
+    }
+  }
 
   function updateForm(field: keyof ResourceFormData, value: string) {
     setForm((currentForm) => ({ ...currentForm, [field]: value }));
@@ -147,6 +176,20 @@ export default function Home() {
     setSearchQuery("");
     setSelectedCategory("All");
     setSelectedStatus("All");
+    setSavedOnly(false);
+  }
+
+  function toggleSavedResource(id: string) {
+    setSavedResourceIds((currentSavedIds) => {
+      const isAlreadySaved = currentSavedIds.includes(id);
+      const nextSavedIds = isAlreadySaved
+        ? currentSavedIds.filter((savedId) => savedId !== id)
+        : [...currentSavedIds, id];
+
+      persistSavedResourceIds(nextSavedIds);
+      setToast(isAlreadySaved ? "Removed from saved." : "Saved resource.");
+      return nextSavedIds;
+    });
   }
 
   async function addResource(event: FormEvent<HTMLFormElement>) {
@@ -205,11 +248,17 @@ export default function Home() {
 
     setDeletingId(id);
     const resourceToDelete = resources.find((resource) => resource.id === id);
+    const resourceWasSaved = savedResourceIds.includes(id);
 
     if (!supabase || isDemoMode) {
       setResources((currentResources) =>
         currentResources.filter((resource) => resource.id !== id)
       );
+      setSavedResourceIds((currentSavedIds) => {
+        const nextSavedIds = currentSavedIds.filter((savedId) => savedId !== id);
+        persistSavedResourceIds(nextSavedIds);
+        return nextSavedIds;
+      });
       setToast("Resource deleted.");
       setDeletingId(null);
       return;
@@ -218,6 +267,11 @@ export default function Home() {
     setResources((currentResources) =>
       currentResources.filter((resource) => resource.id !== id)
     );
+    setSavedResourceIds((currentSavedIds) => {
+      const nextSavedIds = currentSavedIds.filter((savedId) => savedId !== id);
+      persistSavedResourceIds(nextSavedIds);
+      return nextSavedIds;
+    });
 
     const { error } = await supabase.from("resources").delete().eq("id", id);
 
@@ -225,6 +279,13 @@ export default function Home() {
       if (resourceToDelete) {
         setResources((currentResources) => [resourceToDelete, ...currentResources]);
       }
+      setSavedResourceIds((currentSavedIds) => {
+        const nextSavedIds = resourceToDelete && resourceWasSaved
+          ? Array.from(new Set([...currentSavedIds, resourceToDelete.id]))
+          : currentSavedIds;
+        persistSavedResourceIds(nextSavedIds);
+        return nextSavedIds;
+      });
 
       setIsDemoMode(true);
       setToast("Supabase unavailable. Using demo mode.");
@@ -295,10 +356,13 @@ export default function Home() {
             selectedCategory={selectedCategory}
             selectedStatus={selectedStatus}
             searchQuery={searchQuery}
+            savedOnly={savedOnly}
+            savedCount={savedResourceIds.length}
             activeFilterCount={activeFilterCount}
             onCategoryChange={setSelectedCategory}
             onStatusChange={setSelectedStatus}
             onSearchChange={setSearchQuery}
+            onSavedOnlyChange={setSavedOnly}
             onClearFilters={clearFilters}
           />
 
@@ -333,7 +397,9 @@ export default function Home() {
                   <ResourceCard
                     key={resource.id}
                     resource={resource}
+                    isSaved={savedResourceIds.includes(resource.id)}
                     isDeleting={deletingId === resource.id}
+                    onToggleSave={toggleSavedResource}
                     onCopy={copyDiscordPost}
                     onDelete={deleteResource}
                   />

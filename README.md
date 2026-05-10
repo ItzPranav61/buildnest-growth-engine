@@ -13,6 +13,7 @@ The app is intentionally simple: add resources, browse/filter them, copy a Disco
 - Filter by category and status
 - Status system: `Open`, `Upcoming`, `Expired`
 - Community metadata: posted-by label and lightweight relative time
+- Browser-local saved resources with a Saved Only filter
 - Copy formatted Discord posts
 - Loading skeletons, empty states, inline form validation, and toast notifications
 
@@ -125,6 +126,7 @@ Add screenshots here before deployment:
 - No authentication or permissions
 - No edit/update flow yet
 - Demo mode data is not persisted
+- Saved resources are stored per browser/device with `localStorage`
 - Public insert/delete policies are only appropriate for an early no-auth MVP
 - No Discord bot, AI enrichment, scraping, analytics, or payments
 
