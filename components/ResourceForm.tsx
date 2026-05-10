@@ -28,7 +28,7 @@ export function ResourceForm({
   return (
     <form
       onSubmit={onSubmit}
-      className="w-full min-w-0 rounded-xl border border-[#D1C1A9] bg-[#E8DFCA] p-4 text-ink shadow-[0_14px_34px_rgba(36,48,65,0.13)] sm:p-5 lg:sticky lg:top-6 lg:h-fit"
+      className="w-full min-w-0 rounded-xl border border-[#D1C1A9] bg-[#E8DFCA] p-4 text-ink shadow-[0_14px_34px_rgba(36,48,65,0.13)] sm:p-5"
     >
       <div>
         <h2 className="text-lg font-bold text-ink">Add Resource</h2>

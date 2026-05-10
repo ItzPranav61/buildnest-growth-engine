@@ -95,6 +95,13 @@ export type NewResourcePayload = {
   source_type: SourceType;
 };
 
+export type BulkImportResult = {
+  resources: NewResource[];
+  importedCount: number;
+  skippedCount: number;
+  errors: string[];
+};
+
 export type ResourceFormData = {
   title: string;
   category: Category;
@@ -260,7 +267,45 @@ export const demoResources: Resource[] = [
 ];
 
 export function normalizeCategory(category: string): Category {
-  return categories.includes(category as Category) ? (category as Category) : "Learning";
+  if (categories.includes(category as Category)) {
+    return category as Category;
+  }
+
+  const normalizedCategory = category.toLowerCase();
+
+  if (normalizedCategory.includes("freebie") || normalizedCategory.includes("free stuff")) {
+    return "Freebie";
+  }
+
+  if (normalizedCategory.includes("learning") || normalizedCategory.includes("course")) {
+    return "Learning";
+  }
+
+  if (normalizedCategory.includes("tool") || normalizedCategory.includes("platform")) {
+    return "Tool";
+  }
+
+  if (normalizedCategory.includes("startup") || normalizedCategory.includes("project")) {
+    return "Project";
+  }
+
+  if (normalizedCategory.includes("open")) {
+    return "Open Source";
+  }
+
+  if (normalizedCategory.includes("hackathon")) {
+    return "Hackathon";
+  }
+
+  if (normalizedCategory.includes("intern")) {
+    return "Internship";
+  }
+
+  if (normalizedCategory.includes("community")) {
+    return "Community";
+  }
+
+  return "Learning";
 }
 
 export function normalizeStatus(status: string | null | undefined): Status {
@@ -285,6 +330,27 @@ export function normalizeSourceType(sourceType: string | null | undefined): Sour
   return sourceTypeOptions.includes(sourceType as SourceType)
     ? (sourceType as SourceType)
     : "Curated";
+}
+
+function isObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function readString(value: unknown) {
+  return typeof value === "string" ? value.trim() : "";
+}
+
+function readOptionalDate(value: unknown) {
+  const dateValue = readString(value);
+
+  if (!dateValue) {
+    return null;
+  }
+
+  const isIsoDate = /^\d{4}-\d{2}-\d{2}$/.test(dateValue);
+  const parsedTime = new Date(`${dateValue}T00:00:00`).getTime();
+
+  return isIsoDate && !Number.isNaN(parsedTime) ? dateValue : null;
 }
 
 export function normalizeResource(resource: Resource | ResourceRow): Resource {
@@ -353,6 +419,122 @@ export function toSupabaseResourcePayload(resource: NewResource): NewResourcePay
     deadline_date: resource.deadlineDate,
     quality: resource.quality,
     source_type: resource.sourceType
+  };
+}
+
+export function parseBulkImportResources(
+  jsonInput: string,
+  existingResources: Resource[]
+): BulkImportResult {
+  const errors: string[] = [];
+  let parsedValue: unknown;
+
+  try {
+    parsedValue = JSON.parse(jsonInput);
+  } catch {
+    return {
+      resources: [],
+      importedCount: 0,
+      skippedCount: 0,
+      errors: ["JSON is invalid. Paste a valid JSON array."]
+    };
+  }
+
+  if (!Array.isArray(parsedValue)) {
+    return {
+      resources: [],
+      importedCount: 0,
+      skippedCount: 0,
+      errors: ["Import must be a JSON array of resource objects."]
+    };
+  }
+
+  const existingTitles = new Set(
+    existingResources.map((resource) => resource.title.trim().toLowerCase()).filter(Boolean)
+  );
+  const existingLinks = new Set(
+    existingResources
+      .map((resource) => resource.link?.trim().toLowerCase())
+      .filter((link): link is string => Boolean(link))
+  );
+  const batchTitles = new Set<string>();
+  const batchLinks = new Set<string>();
+  const resources: NewResource[] = [];
+  let skippedCount = 0;
+
+  parsedValue.forEach((entry, index) => {
+    const rowNumber = index + 1;
+
+    if (!isObject(entry)) {
+      skippedCount += 1;
+      errors.push(`Row ${rowNumber}: skipped because it is not an object.`);
+      return;
+    }
+
+    const title = readString(entry.title);
+    const category = readString(entry.category);
+    const description =
+      readString(entry.description) ||
+      readString(entry.whyValuable) ||
+      readString(entry.discordSummary);
+    const link = readString(entry.link);
+
+    const missingFields = [
+      !title ? "title" : null,
+      !category ? "category" : null,
+      !description ? "description" : null,
+      !link ? "link" : null
+    ].filter(Boolean);
+
+    if (missingFields.length > 0) {
+      skippedCount += 1;
+      errors.push(`Row ${rowNumber}: missing ${missingFields.join(", ")}.`);
+      return;
+    }
+
+    const titleKey = title.toLowerCase();
+    const linkKey = link.toLowerCase();
+
+    if (existingTitles.has(titleKey) || batchTitles.has(titleKey)) {
+      skippedCount += 1;
+      errors.push(`Row ${rowNumber}: duplicate title skipped (${title}).`);
+      return;
+    }
+
+    if (existingLinks.has(linkKey) || batchLinks.has(linkKey)) {
+      skippedCount += 1;
+      errors.push(`Row ${rowNumber}: duplicate link skipped (${link}).`);
+      return;
+    }
+
+    batchTitles.add(titleKey);
+    batchLinks.add(linkKey);
+
+    resources.push({
+      title,
+      category: normalizeCategory(category),
+      type: readString(entry.type) || null,
+      link,
+      description,
+      difficulty: readString(entry.difficulty) || null,
+      india_friendly:
+        readString(entry.indiaFriendly) || readString(entry.india_friendly) || null,
+      status: normalizeStatus(readString(entry.status)),
+      postedBy: readString(entry.postedBy) || readString(entry.posted_by) || defaultPostedBy,
+      createdAt: new Date().toISOString(),
+      startDate: readOptionalDate(entry.startDate ?? entry.start_date),
+      endDate: readOptionalDate(entry.endDate ?? entry.end_date),
+      deadlineDate: readOptionalDate(entry.deadlineDate ?? entry.deadline_date),
+      quality: normalizeQuality(readString(entry.quality)),
+      sourceType: normalizeSourceType(readString(entry.sourceType ?? entry.source_type))
+    });
+  });
+
+  return {
+    resources,
+    importedCount: resources.length,
+    skippedCount,
+    errors
   };
 }
 

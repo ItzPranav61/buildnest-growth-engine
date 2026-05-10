@@ -14,6 +14,8 @@ The app is intentionally simple: add resources, browse/filter them, copy a Disco
 - Status system: create `Active`/`Upcoming` resources and mark resources as `Expired` or `Active`
 - Optional start, end, and deadline dates with a compact timeline display
 - Quality and source trust labels for lightweight curation
+- Bulk JSON import for AI-generated resource arrays, with duplicate checks
+- Export current resources as JSON
 - Community metadata: posted-by label and lightweight relative time
 - Browser-local saved resources with a Saved Only filter
 - Copy formatted Discord posts
@@ -148,6 +150,33 @@ When Supabase env vars are missing or fetching resources fails, the app shows:
 
 Demo mode uses five in-memory fallback resources. Add/delete works locally for the current browser session only.
 
+## Bulk Import Format
+
+Paste a JSON array into the Bulk Import panel. The importer requires `title`, `category`, `description`, and `link`. Optional or invalid values safely fall back to app defaults, and duplicate titles or links are skipped.
+
+```json
+[
+  {
+    "title": "Google Summer of Code",
+    "category": "Open Source",
+    "description": "A global program where contributors work with open source organizations.",
+    "whyValuable": "Strong open-source portfolio value.",
+    "difficulty": "Advanced",
+    "indiaFriendly": "Yes",
+    "status": "Active",
+    "startDate": "2026-05-12",
+    "endDate": "2026-08-18",
+    "deadlineDate": "2026-05-10",
+    "quality": "High",
+    "sourceType": "Official",
+    "link": "https://summerofcode.withgoogle.com/",
+    "discordSummary": "Apply for a global open-source program."
+  }
+]
+```
+
+Supported category aliases from AI output are normalized into the app categories. For example, `Tool / Freebie` becomes `Freebie`, `Learning Platform` becomes `Learning`, and `Startup Resource` becomes `Project`.
+
 ## Screenshots
 
 Add screenshots here before deployment:
@@ -160,6 +189,7 @@ Add screenshots here before deployment:
 
 - No authentication or permissions
 - No edit/update flow yet
+- No CSV or file upload import yet
 - Demo mode data is not persisted
 - Saved resources are stored per browser/device with `localStorage`
 - Public insert/delete policies are only appropriate for an early no-auth MVP
