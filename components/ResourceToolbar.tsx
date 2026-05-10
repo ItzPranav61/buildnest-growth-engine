@@ -14,7 +14,7 @@ type ResourceToolbarProps = {
 };
 
 const controlClass =
-  "min-h-10 rounded-md border border-[#CFC0AA] bg-white px-3.5 py-2 text-sm text-ink outline-none transition placeholder:text-muted hover:border-brand focus:border-brand focus:shadow-[0_0_0_3px_rgba(91,127,255,0.12)]";
+  "min-h-10 w-full min-w-0 rounded-md border border-[#CFC0AA] bg-white px-3.5 py-2 text-sm text-ink outline-none transition placeholder:text-muted hover:border-brand focus:border-brand focus:shadow-[0_0_0_3px_rgba(91,127,255,0.12)]";
 
 export function ResourceToolbar({
   resourceCount,
@@ -29,31 +29,31 @@ export function ResourceToolbar({
   onClearFilters
 }: ResourceToolbarProps) {
   return (
-    <div className="rounded-xl border border-[#D1C1A9] bg-[#E8DFCA] p-5 text-ink shadow-[0_14px_34px_rgba(36,48,65,0.12)]">
+    <div className="w-full min-w-0 rounded-xl border border-[#D1C1A9] bg-[#E8DFCA] p-4 text-ink shadow-[0_14px_34px_rgba(36,48,65,0.12)] sm:p-5">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-        <div>
+        <div className="min-w-0">
           <h2 className="text-2xl font-bold text-ink">Resources</h2>
           <p className="text-sm text-muted">
             {resourceCount} shown from {totalCount} total
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
-          <span className="rounded-full bg-brandSoft px-3 py-1 font-mono text-xs font-semibold text-[#304FB8]">
+        <div className="flex flex-wrap items-center gap-3">
+          <span className="max-w-full rounded-full bg-brandSoft px-3 py-1 font-mono text-xs font-semibold text-[#304FB8]">
             {activeFilterCount} active {activeFilterCount === 1 ? "filter" : "filters"}
           </span>
           <button
             type="button"
             onClick={onClearFilters}
             disabled={activeFilterCount === 0}
-            className="min-h-10 rounded-full border border-[#AFC8DC] bg-soft px-4 py-2 text-sm font-semibold text-ink shadow-[0_6px_14px_rgba(36,48,65,0.08)] transition hover:bg-[#B9D2E5] disabled:cursor-not-allowed disabled:opacity-50"
+            className="min-h-11 rounded-full border border-[#AFC8DC] bg-soft px-4 py-2 text-sm font-semibold text-ink shadow-[0_6px_14px_rgba(36,48,65,0.08)] transition hover:bg-[#B9D2E5] disabled:cursor-not-allowed disabled:opacity-50"
           >
             Clear Filters
           </button>
         </div>
       </div>
 
-      <div className="mt-4 grid gap-3 sm:grid-cols-[minmax(0,1fr)_11rem_10rem]">
+      <div className="mt-4 grid min-w-0 gap-3 md:grid-cols-[minmax(0,1fr)_11rem_10rem]">
         <label htmlFor="resource-search" className="grid gap-2 text-sm font-semibold text-ink">
           Search
           <input

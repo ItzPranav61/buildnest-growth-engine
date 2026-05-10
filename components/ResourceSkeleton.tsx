@@ -1,9 +1,9 @@
 export function ResourceSkeleton() {
   return (
-    <div className="grid gap-4 xl:grid-cols-2">
+    <div className="grid min-w-0 gap-4 xl:grid-cols-2">
       {Array.from({ length: 4 }).map((_, index) => (
-        <div key={index} className="min-h-72 rounded-xl border border-[#E2D8C9] bg-[#FFFDFC] p-6 shadow-[0_16px_36px_rgba(36,48,65,0.13)]">
-          <div className="flex gap-2">
+        <div key={index} className="min-h-72 min-w-0 rounded-xl border border-[#E2D8C9] bg-[#FFFDFC] p-5 shadow-[0_16px_36px_rgba(36,48,65,0.13)] sm:p-6">
+          <div className="flex flex-wrap gap-2">
             <div className="h-5 w-24 rounded-full bg-soft" />
             <div className="h-5 w-16 rounded-full bg-panel" />
           </div>
@@ -13,7 +13,7 @@ export function ResourceSkeleton() {
             <div className="h-4 rounded bg-soft" />
             <div className="h-4 w-5/6 rounded bg-panel" />
           </div>
-          <div className="mt-6 flex gap-3">
+          <div className="mt-6 grid gap-3 sm:grid-cols-[minmax(0,1fr)_8rem]">
             <div className="h-11 flex-1 rounded-full bg-soft" />
             <div className="h-11 w-32 rounded-full bg-panel" />
           </div>

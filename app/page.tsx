@@ -255,29 +255,29 @@ export default function Home() {
   return (
     <main
       suppressHydrationWarning
-      className="mx-auto flex min-h-screen w-full max-w-[1440px] flex-col gap-8 px-4 py-8 sm:px-6 lg:px-8"
+      className="mx-auto flex min-h-screen w-full max-w-[1440px] flex-col gap-6 overflow-x-hidden px-4 py-6 sm:gap-8 sm:px-6 sm:py-8 lg:px-8"
     >
       <header className="flex flex-col gap-6 border-b border-line pb-8 lg:flex-row lg:items-end lg:justify-between">
-        <div>
+        <div className="min-w-0">
           <p className="font-mono text-sm font-semibold text-brand">
             Discord resource ops
           </p>
-          <h1 className="mt-3 max-w-3xl text-[32px] font-bold leading-tight tracking-normal text-ink sm:text-[42px]">
+          <h1 className="mt-3 max-w-3xl break-words text-3xl font-bold leading-tight tracking-normal text-ink sm:text-[42px]">
             BuildNest Growth Engine
           </h1>
           <div className="mt-3 h-1 w-24 rounded-full bg-brand" />
-          <p className="mt-4 max-w-2xl text-base leading-7 text-muted">
+          <p className="mt-4 max-w-2xl break-words text-base leading-7 text-muted">
             Curate practical internships, hackathons, tools, communities, and learning links for
             your Discord members.
           </p>
         </div>
 
-        <div className="rounded-xl border border-[#D1C1A9] bg-[#E8DFCA] px-5 py-4 font-mono text-sm font-semibold text-ink shadow-[0_10px_24px_rgba(36,48,65,0.09)]">
+        <div className="w-full max-w-full break-words rounded-xl border border-[#D1C1A9] bg-[#E8DFCA] px-4 py-4 font-mono text-xs font-semibold text-ink shadow-[0_10px_24px_rgba(36,48,65,0.09)] sm:px-5 sm:text-sm lg:w-auto">
           {isDemoMode ? "Database not connected yet. Using local demo mode." : "Connected to Supabase"}
         </div>
       </header>
 
-      <section className="grid gap-6 lg:grid-cols-[minmax(18rem,0.3fr)_minmax(0,0.7fr)]">
+      <section className="grid w-full min-w-0 gap-6 lg:grid-cols-[minmax(18rem,0.3fr)_minmax(0,0.7fr)]">
         <ResourceForm
           form={form}
           errors={formErrors}
@@ -307,7 +307,7 @@ export default function Home() {
                 <ResourceSkeleton />
               </div>
             ) : filteredResources.length === 0 ? (
-              <div className="rounded-xl border border-[#E2D8C9] bg-[#FFFDFC] p-8 text-center text-ink shadow-[0_16px_36px_rgba(36,48,65,0.13)]">
+              <div className="rounded-xl border border-[#E2D8C9] bg-[#FFFDFC] p-6 text-center text-ink shadow-[0_16px_36px_rgba(36,48,65,0.13)] sm:p-8">
                 <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl border border-[#AFC8DC] bg-soft font-mono text-sm font-semibold text-brand">
                   BN
                 </div>

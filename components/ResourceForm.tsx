@@ -10,7 +10,7 @@ type ResourceFormProps = {
 };
 
 const inputClass =
-  "min-h-10 rounded-md border border-[#CFC0AA] bg-white px-3.5 py-2 text-sm text-ink outline-none transition placeholder:text-muted hover:border-brand focus:border-brand focus:shadow-[0_0_0_3px_rgba(91,127,255,0.12)] aria-[invalid=true]:border-danger";
+  "min-h-10 w-full min-w-0 rounded-md border border-[#CFC0AA] bg-white px-3.5 py-2 text-sm text-ink outline-none transition placeholder:text-muted hover:border-brand focus:border-brand focus:shadow-[0_0_0_3px_rgba(91,127,255,0.12)] aria-[invalid=true]:border-danger";
 
 export function ResourceForm({
   form,
@@ -22,14 +22,14 @@ export function ResourceForm({
   return (
     <form
       onSubmit={onSubmit}
-      className="sticky top-6 h-fit rounded-xl border border-[#D1C1A9] bg-[#E8DFCA] p-5 text-ink shadow-[0_14px_34px_rgba(36,48,65,0.13)]"
+      className="w-full min-w-0 rounded-xl border border-[#D1C1A9] bg-[#E8DFCA] p-4 text-ink shadow-[0_14px_34px_rgba(36,48,65,0.13)] sm:p-5 lg:sticky lg:top-6 lg:h-fit"
     >
       <div>
         <h2 className="text-lg font-bold text-ink">Add Resource</h2>
         <p className="mt-1 text-sm leading-5 text-muted">Capture one useful link for the community.</p>
       </div>
 
-      <div className="mt-5 grid gap-3.5">
+      <div className="mt-5 grid min-w-0 gap-3.5">
         <label htmlFor="title" className="grid gap-2 text-sm font-semibold text-ink">
           Title <span className="sr-only">required</span>
           <input
