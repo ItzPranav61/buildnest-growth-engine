@@ -21,6 +21,14 @@ export const dateFilters = ["All Dates", "Upcoming", "Ending Soon", "Deadline Pa
 
 export type DateFilter = (typeof dateFilters)[number];
 
+export const qualityOptions = ["High", "Medium", "Low"] as const;
+
+export type Quality = (typeof qualityOptions)[number];
+
+export const sourceTypeOptions = ["Official", "Curated", "Community"] as const;
+
+export type SourceType = (typeof sourceTypeOptions)[number];
+
 export type Resource = {
   id: string;
   title: string;
@@ -36,6 +44,8 @@ export type Resource = {
   startDate: string | null;
   endDate: string | null;
   deadlineDate: string | null;
+  quality: Quality;
+  sourceType: SourceType;
   featured?: boolean;
 };
 
@@ -54,11 +64,14 @@ export type ResourceRow = {
   start_date?: string | null;
   end_date?: string | null;
   deadline_date?: string | null;
+  quality?: string | null;
+  source_type?: string | null;
   postedBy?: string | null;
   createdAt?: string | null;
   startDate?: string | null;
   endDate?: string | null;
   deadlineDate?: string | null;
+  sourceType?: string | null;
   featured?: boolean | null;
 };
 
@@ -78,6 +91,8 @@ export type NewResourcePayload = {
   start_date: string | null;
   end_date: string | null;
   deadline_date: string | null;
+  quality: Quality;
+  source_type: SourceType;
 };
 
 export type ResourceFormData = {
@@ -93,6 +108,8 @@ export type ResourceFormData = {
   startDate: string;
   endDate: string;
   deadlineDate: string;
+  quality: Quality;
+  sourceType: SourceType;
 };
 
 export const defaultPostedBy = "BuildNest Member";
@@ -109,7 +126,9 @@ export const emptyResourceForm: ResourceFormData = {
   postedBy: defaultPostedBy,
   startDate: "",
   endDate: "",
-  deadlineDate: ""
+  deadlineDate: "",
+  quality: "Medium",
+  sourceType: "Curated"
 };
 
 function dateOffset(days: number) {
@@ -135,6 +154,18 @@ export const statusBadgeClasses: Record<Status, string> = {
   Expired: "border-danger/30 bg-dangerSoft text-danger"
 };
 
+export const qualityBadgeClasses: Record<Quality, string> = {
+  High: "border-[#6D94C5]/45 bg-[#CBDCEB] text-ink",
+  Medium: "border-line bg-page text-muted",
+  Low: "border-line bg-white text-muted"
+};
+
+export const sourceTypeBadgeClasses: Record<SourceType, string> = {
+  Official: "border-brand/40 bg-brandSoft text-[#304FB8]",
+  Curated: "border-[#6D94C5]/35 bg-[#CBDCEB] text-ink",
+  Community: "border-line bg-page text-muted"
+};
+
 export const demoResources: Resource[] = [
   {
     id: "demo-github-student-developer-pack",
@@ -150,7 +181,9 @@ export const demoResources: Resource[] = [
     createdAt: new Date().toISOString(),
     startDate: null,
     endDate: null,
-    deadlineDate: null
+    deadlineDate: null,
+    quality: "High",
+    sourceType: "Official"
   },
   {
     id: "demo-google-developer-student-clubs",
@@ -166,7 +199,9 @@ export const demoResources: Resource[] = [
     createdAt: new Date().toISOString(),
     startDate: dateOffset(12),
     endDate: dateOffset(13),
-    deadlineDate: null
+    deadlineDate: null,
+    quality: "Medium",
+    sourceType: "Official"
   },
   {
     id: "demo-google-summer-of-code",
@@ -182,7 +217,9 @@ export const demoResources: Resource[] = [
     createdAt: new Date().toISOString(),
     startDate: dateOffset(30),
     endDate: dateOffset(120),
-    deadlineDate: dateOffset(21)
+    deadlineDate: dateOffset(21),
+    quality: "High",
+    sourceType: "Official"
   },
   {
     id: "demo-mlh-fellowship",
@@ -198,7 +235,9 @@ export const demoResources: Resource[] = [
     createdAt: new Date().toISOString(),
     startDate: dateOffset(-30),
     endDate: dateOffset(-2),
-    deadlineDate: dateOffset(-7)
+    deadlineDate: dateOffset(-7),
+    quality: "Medium",
+    sourceType: "Curated"
   },
   {
     id: "demo-kaggle-competitions",
@@ -214,7 +253,9 @@ export const demoResources: Resource[] = [
     createdAt: new Date().toISOString(),
     startDate: dateOffset(2),
     endDate: dateOffset(6),
-    deadlineDate: dateOffset(6)
+    deadlineDate: dateOffset(6),
+    quality: "Medium",
+    sourceType: "Community"
   }
 ];
 
@@ -234,6 +275,16 @@ export function normalizeStatus(status: string | null | undefined): Status {
   }
 
   return "Active";
+}
+
+export function normalizeQuality(quality: string | null | undefined): Quality {
+  return qualityOptions.includes(quality as Quality) ? (quality as Quality) : "Medium";
+}
+
+export function normalizeSourceType(sourceType: string | null | undefined): SourceType {
+  return sourceTypeOptions.includes(sourceType as SourceType)
+    ? (sourceType as SourceType)
+    : "Curated";
 }
 
 export function normalizeResource(resource: Resource | ResourceRow): Resource {
@@ -257,6 +308,10 @@ export function normalizeResource(resource: Resource | ResourceRow): Resource {
     endDate: ("endDate" in resource ? resource.endDate : resource.end_date) || null,
     deadlineDate:
       ("deadlineDate" in resource ? resource.deadlineDate : resource.deadline_date) || null,
+    quality: normalizeQuality(resource.quality),
+    sourceType: normalizeSourceType(
+      "sourceType" in resource ? resource.sourceType : resource.source_type
+    ),
     featured: Boolean(resource.featured)
   };
 }
@@ -275,7 +330,9 @@ export function toResourceFormPayload(form: ResourceFormData): NewResource {
     createdAt: new Date().toISOString(),
     startDate: form.startDate || null,
     endDate: form.endDate || null,
-    deadlineDate: form.deadlineDate || null
+    deadlineDate: form.deadlineDate || null,
+    quality: form.quality,
+    sourceType: form.sourceType
   };
 }
 
@@ -293,7 +350,9 @@ export function toSupabaseResourcePayload(resource: NewResource): NewResourcePay
     created_at: resource.createdAt,
     start_date: resource.startDate,
     end_date: resource.endDate,
-    deadline_date: resource.deadlineDate
+    deadline_date: resource.deadlineDate,
+    quality: resource.quality,
+    source_type: resource.sourceType
   };
 }
 
@@ -461,6 +520,8 @@ export function formatDiscordPost(resource: Resource) {
     `🧩 Category: ${resource.category}`,
     resource.difficulty ? `📈 Difficulty: ${resource.difficulty}` : null,
     `📍 Status: ${resource.status}`,
+    `\u2B50 Quality: ${resource.quality}`,
+    `\uD83D\uDD0E Source: ${resource.sourceType}`,
     timelineLabel ? `🗓️ Timeline: ${timelineLabel}` : null,
     deadlineLabel ? `⏳ Deadline: ${deadlineLabel}` : null,
     resource.india_friendly === "Yes"

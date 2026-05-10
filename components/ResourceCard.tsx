@@ -4,6 +4,8 @@ import {
   formatRelativeTime,
   formatTimelineLabel,
   isResourceDatePassed,
+  qualityBadgeClasses,
+  sourceTypeBadgeClasses,
   statusBadgeClasses,
   type Resource,
   type Status
@@ -70,6 +72,18 @@ export function ResourceCard({
               &#x1F1EE;&#x1F1F3; India
             </span>
           )}
+
+          <span className={`rounded-full border px-3 py-1 text-xs font-medium ${qualityBadgeClasses[resource.quality]}`}>
+            {resource.quality} Quality
+          </span>
+
+          <span className={`rounded-full border px-3 py-1 text-xs font-medium ${sourceTypeBadgeClasses[resource.sourceType]}`}>
+            {resource.sourceType === "Official"
+              ? "Official Source"
+              : resource.sourceType === "Community"
+                ? "Community Submitted"
+                : "Curated"}
+          </span>
         </div>
       </div>
 

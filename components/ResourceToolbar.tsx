@@ -1,4 +1,11 @@
-import { categories, dateFilters, statuses, type DateFilter } from "@/lib/resources";
+import {
+  categories,
+  dateFilters,
+  qualityOptions,
+  statuses,
+  type DateFilter,
+  type Quality
+} from "@/lib/resources";
 
 type ResourceToolbarProps = {
   resourceCount: number;
@@ -6,6 +13,7 @@ type ResourceToolbarProps = {
   selectedCategory: string;
   selectedStatus: string;
   selectedDateFilter: DateFilter;
+  selectedQuality: Quality | "All";
   searchQuery: string;
   savedOnly: boolean;
   savedCount: number;
@@ -13,6 +21,7 @@ type ResourceToolbarProps = {
   onCategoryChange: (category: string) => void;
   onStatusChange: (status: string) => void;
   onDateFilterChange: (dateFilter: DateFilter) => void;
+  onQualityChange: (quality: Quality | "All") => void;
   onSearchChange: (query: string) => void;
   onSavedOnlyChange: (savedOnly: boolean) => void;
   onClearFilters: () => void;
@@ -27,6 +36,7 @@ export function ResourceToolbar({
   selectedCategory,
   selectedStatus,
   selectedDateFilter,
+  selectedQuality,
   searchQuery,
   savedOnly,
   savedCount,
@@ -34,6 +44,7 @@ export function ResourceToolbar({
   onCategoryChange,
   onStatusChange,
   onDateFilterChange,
+  onQualityChange,
   onSearchChange,
   onSavedOnlyChange,
   onClearFilters
@@ -63,7 +74,7 @@ export function ResourceToolbar({
         </div>
       </div>
 
-      <div className="mt-4 grid min-w-0 gap-3 md:grid-cols-2 lg:grid-cols-[minmax(0,1fr)_10rem_9rem_10rem_9rem]">
+      <div className="mt-4 grid min-w-0 gap-3 md:grid-cols-2 lg:grid-cols-[minmax(0,1fr)_10rem_9rem_10rem_8rem_9rem]">
         <label htmlFor="resource-search" className="grid gap-2 text-sm font-semibold text-ink">
           Search
           <input
@@ -115,6 +126,21 @@ export function ResourceToolbar({
           >
             {dateFilters.map((dateFilter) => (
               <option key={dateFilter}>{dateFilter}</option>
+            ))}
+          </select>
+        </label>
+
+        <label htmlFor="quality-filter" className="grid gap-2 text-sm font-semibold text-ink">
+          Quality
+          <select
+            id="quality-filter"
+            value={selectedQuality}
+            onChange={(event) => onQualityChange(event.target.value as Quality | "All")}
+            className={controlClass}
+          >
+            <option>All</option>
+            {qualityOptions.map((quality) => (
+              <option key={quality}>{quality}</option>
             ))}
           </select>
         </label>

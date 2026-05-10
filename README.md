@@ -10,9 +10,10 @@ The app is intentionally simple: add resources, browse/filter them, copy a Disco
 - Add/delete resources with Supabase CRUD
 - Local demo mode fallback when Supabase env vars are missing or fetch fails
 - Search by title, description, or category
-- Filter by category, status, saved resources, and date state
+- Filter by category, status, quality, saved resources, and date state
 - Status system: create `Active`/`Upcoming` resources and mark resources as `Expired` or `Active`
 - Optional start, end, and deadline dates with a compact timeline display
+- Quality and source trust labels for lightweight curation
 - Community metadata: posted-by label and lightweight relative time
 - Browser-local saved resources with a Saved Only filter
 - Copy formatted Discord posts
@@ -53,6 +54,8 @@ create table resources (
   difficulty text,
   india_friendly text,
   status text default 'Active',
+  quality text default 'Medium',
+  source_type text default 'Curated',
   posted_by text default 'BuildNest Member',
   start_date date,
   end_date date,
@@ -79,9 +82,23 @@ add column if not exists end_date date;
 alter table resources
 add column if not exists deadline_date date;
 
+alter table resources
+add column if not exists quality text default 'Medium';
+
+alter table resources
+add column if not exists source_type text default 'Curated';
+
 update resources
 set posted_by = 'BuildNest Member'
 where posted_by is null or posted_by = '';
+
+update resources
+set quality = 'Medium'
+where quality is null or quality = '';
+
+update resources
+set source_type = 'Curated'
+where source_type is null or source_type = '';
 
 update resources
 set created_at = now()
@@ -114,13 +131,13 @@ using (true);
 Optional seed data:
 
 ```sql
-insert into resources (title, category, type, link, description, difficulty, india_friendly, status, posted_by, start_date, end_date, deadline_date)
+insert into resources (title, category, type, link, description, difficulty, india_friendly, status, posted_by, start_date, end_date, deadline_date, quality, source_type)
 values
-  ('GitHub Student Developer Pack', 'Freebie', 'Student benefits', 'https://education.github.com/pack', 'Free developer tools, credits, and learning resources for verified students.', 'Beginner', 'Yes', 'Active', 'BuildNest Member', null, null, null),
-  ('Google Developer Student Clubs', 'Community', 'Campus community', 'https://gdsc.community.dev/', 'Student-led developer communities with events, projects, and peer learning.', 'Beginner', 'Yes', 'Active', 'BuildNest Member', current_date + 12, current_date + 13, null),
-  ('Google Summer of Code', 'Open Source', 'Open source program', 'https://summerofcode.withgoogle.com/', 'A global program where contributors work with open source organizations.', 'Advanced', 'Yes', 'Upcoming', 'BuildNest Member', current_date + 30, current_date + 120, current_date + 21),
-  ('MLH Fellowship', 'Internship', 'Remote fellowship', 'https://fellowship.mlh.io/', 'A remote fellowship for developers to contribute to real projects in teams.', 'Intermediate', 'Yes', 'Expired', 'BuildNest Member', current_date - 30, current_date - 2, current_date - 7),
-  ('Kaggle Competitions', 'Hackathon', 'Data science challenge', 'https://www.kaggle.com/competitions', 'Competitions for practicing machine learning, analytics, and problem solving.', 'Intermediate', 'Yes', 'Active', 'BuildNest Member', current_date + 2, current_date + 6, current_date + 6);
+  ('GitHub Student Developer Pack', 'Freebie', 'Student benefits', 'https://education.github.com/pack', 'Free developer tools, credits, and learning resources for verified students.', 'Beginner', 'Yes', 'Active', 'BuildNest Member', null, null, null, 'High', 'Official'),
+  ('Google Developer Student Clubs', 'Community', 'Campus community', 'https://gdsc.community.dev/', 'Student-led developer communities with events, projects, and peer learning.', 'Beginner', 'Yes', 'Active', 'BuildNest Member', current_date + 12, current_date + 13, null, 'Medium', 'Official'),
+  ('Google Summer of Code', 'Open Source', 'Open source program', 'https://summerofcode.withgoogle.com/', 'A global program where contributors work with open source organizations.', 'Advanced', 'Yes', 'Upcoming', 'BuildNest Member', current_date + 30, current_date + 120, current_date + 21, 'High', 'Official'),
+  ('MLH Fellowship', 'Internship', 'Remote fellowship', 'https://fellowship.mlh.io/', 'A remote fellowship for developers to contribute to real projects in teams.', 'Intermediate', 'Yes', 'Expired', 'BuildNest Member', current_date - 30, current_date - 2, current_date - 7, 'Medium', 'Curated'),
+  ('Kaggle Competitions', 'Hackathon', 'Data science challenge', 'https://www.kaggle.com/competitions', 'Competitions for practicing machine learning, analytics, and problem solving.', 'Intermediate', 'Yes', 'Active', 'BuildNest Member', current_date + 2, current_date + 6, current_date + 6, 'Medium', 'Community');
 ```
 
 ## Demo Mode

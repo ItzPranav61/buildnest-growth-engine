@@ -1,5 +1,11 @@
 import { FormEvent } from "react";
-import { categories, creationStatuses, type ResourceFormData } from "@/lib/resources";
+import {
+  categories,
+  creationStatuses,
+  qualityOptions,
+  sourceTypeOptions,
+  type ResourceFormData
+} from "@/lib/resources";
 
 type ResourceFormProps = {
   form: ResourceFormData;
@@ -135,7 +141,7 @@ export function ResourceForm({
         </div>
 
         <div className="grid gap-3 sm:grid-cols-2">
-          <label htmlFor="category" className="grid gap-2 text-sm font-semibold text-ink">
+          <label htmlFor="category" className="grid gap-2 text-sm font-medium text-muted">
             Category <span className="sr-only">required</span>
             <select
               id="category"
@@ -184,6 +190,36 @@ export function ResourceForm({
               <option>Yes</option>
               <option>No</option>
               <option>Check details</option>
+            </select>
+          </label>
+
+          <label htmlFor="quality" className="grid gap-2 text-sm font-medium text-muted">
+            Quality
+            <select
+              id="quality"
+              value={form.quality}
+              onChange={(event) => onChange("quality", event.target.value)}
+              className={inputClass}
+            >
+              {qualityOptions.map((quality) => (
+                <option key={quality}>{quality}</option>
+              ))}
+            </select>
+          </label>
+        </div>
+
+        <div className="grid gap-3 sm:grid-cols-2">
+          <label htmlFor="source-type" className="grid gap-2 text-sm font-medium text-muted">
+            Source Type
+            <select
+              id="source-type"
+              value={form.sourceType}
+              onChange={(event) => onChange("sourceType", event.target.value)}
+              className={inputClass}
+            >
+              {sourceTypeOptions.map((sourceType) => (
+                <option key={sourceType}>{sourceType}</option>
+              ))}
             </select>
           </label>
 

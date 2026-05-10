@@ -16,6 +16,7 @@ import {
   toResourceFormPayload,
   toSupabaseResourcePayload,
   type DateFilter,
+  type Quality,
   type Resource,
   type ResourceRow,
   type ResourceFormData,
@@ -34,6 +35,7 @@ export default function Home() {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [selectedStatus, setSelectedStatus] = useState("All");
   const [selectedDateFilter, setSelectedDateFilter] = useState<DateFilter>("All Dates");
+  const [selectedQuality, setSelectedQuality] = useState<Quality | "All">("All");
   const [searchQuery, setSearchQuery] = useState("");
   const [savedOnly, setSavedOnly] = useState(false);
   const [savedResourceIds, setSavedResourceIds] = useState<string[]>([]);
@@ -94,6 +96,7 @@ export default function Home() {
         selectedCategory === "All" || resource.category === selectedCategory;
       const matchesStatus = selectedStatus === "All" || resource.status === selectedStatus;
       const matchesDates = matchesDateFilter(resource, selectedDateFilter);
+      const matchesQuality = selectedQuality === "All" || resource.quality === selectedQuality;
       const matchesSaved = !savedOnly || savedResourceIds.includes(resource.id);
 
       const searchableText = [
@@ -105,7 +108,7 @@ export default function Home() {
         .join(" ")
         .toLowerCase();
 
-      return matchesCategory && matchesStatus && matchesDates && matchesSaved && (!query || searchableText.includes(query));
+      return matchesCategory && matchesStatus && matchesDates && matchesQuality && matchesSaved && (!query || searchableText.includes(query));
     }).sort((firstResource, secondResource) => {
       const scoreDifference = getResourceSortScore(firstResource) - getResourceSortScore(secondResource);
 
@@ -115,7 +118,7 @@ export default function Home() {
 
       return new Date(secondResource.createdAt).getTime() - new Date(firstResource.createdAt).getTime();
     });
-  }, [resources, savedOnly, savedResourceIds, searchQuery, selectedCategory, selectedDateFilter, selectedStatus]);
+  }, [resources, savedOnly, savedResourceIds, searchQuery, selectedCategory, selectedDateFilter, selectedQuality, selectedStatus]);
 
   const activeFilterCount = useMemo(() => {
     return [
@@ -123,9 +126,10 @@ export default function Home() {
       selectedCategory !== "All",
       selectedStatus !== "All",
       selectedDateFilter !== "All Dates",
+      selectedQuality !== "All",
       savedOnly
     ].filter(Boolean).length;
-  }, [savedOnly, searchQuery, selectedCategory, selectedDateFilter, selectedStatus]);
+  }, [savedOnly, searchQuery, selectedCategory, selectedDateFilter, selectedQuality, selectedStatus]);
 
   function readSavedResourceIds() {
     try {
@@ -193,6 +197,7 @@ export default function Home() {
     setSelectedCategory("All");
     setSelectedStatus("All");
     setSelectedDateFilter("All Dates");
+    setSelectedQuality("All");
     setSavedOnly(false);
   }
 
@@ -416,6 +421,7 @@ export default function Home() {
             selectedCategory={selectedCategory}
             selectedStatus={selectedStatus}
             selectedDateFilter={selectedDateFilter}
+            selectedQuality={selectedQuality}
             searchQuery={searchQuery}
             savedOnly={savedOnly}
             savedCount={savedResourceIds.length}
@@ -423,6 +429,7 @@ export default function Home() {
             onCategoryChange={setSelectedCategory}
             onStatusChange={setSelectedStatus}
             onDateFilterChange={setSelectedDateFilter}
+            onQualityChange={setSelectedQuality}
             onSearchChange={setSearchQuery}
             onSavedOnlyChange={setSavedOnly}
             onClearFilters={clearFilters}
