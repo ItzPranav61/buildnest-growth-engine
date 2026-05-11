@@ -5,6 +5,8 @@ import {
   type OpportunitySearchResult
 } from "@/lib/resources";
 
+export const runtime = "nodejs";
+
 type GoogleSearchItem = {
   title?: string;
   link?: string;
@@ -82,10 +84,17 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const query = searchParams.get("query")?.trim();
   const category = searchParams.get("category")?.trim() || null;
-  const apiKey = process.env.GOOGLE_SEARCH_API_KEY;
-  const searchEngineId = process.env.GOOGLE_SEARCH_ENGINE_ID;
+  const googleSearchApiKey = process.env.GOOGLE_SEARCH_API_KEY?.trim() ?? "";
+  const googleSearchEngineId = process.env.GOOGLE_SEARCH_ENGINE_ID?.trim() ?? "";
+  const hasGoogleSearchApiKey = Boolean(googleSearchApiKey);
+  const hasGoogleSearchEngineId = Boolean(googleSearchEngineId);
 
-  if (!apiKey || !searchEngineId) {
+  console.info("[Opportunity Radar] Google env check", {
+    hasGoogleSearchApiKey,
+    hasGoogleSearchEngineId
+  });
+
+  if (!hasGoogleSearchApiKey || !hasGoogleSearchEngineId) {
     return NextResponse.json(
       { error: "Google Search is not configured. Add GOOGLE_SEARCH_API_KEY and GOOGLE_SEARCH_ENGINE_ID." },
       { status: 500 }
@@ -97,8 +106,8 @@ export async function GET(request: Request) {
   }
 
   const googleUrl = new URL("https://www.googleapis.com/customsearch/v1");
-  googleUrl.searchParams.set("key", apiKey);
-  googleUrl.searchParams.set("cx", searchEngineId);
+  googleUrl.searchParams.set("key", googleSearchApiKey);
+  googleUrl.searchParams.set("cx", googleSearchEngineId);
   googleUrl.searchParams.set("q", query);
   googleUrl.searchParams.set("num", "8");
 
